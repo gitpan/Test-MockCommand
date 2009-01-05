@@ -1,5 +1,5 @@
 # -*- perl -*-
-# test import line magic works
+# test import line magic works for 'record'
 
 use Test::More tests => 3;
 use warnings;
