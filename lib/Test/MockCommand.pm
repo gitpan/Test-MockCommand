@@ -4,14 +4,22 @@ use strict;
 
 use Carp qw(carp croak);
 use Data::Dumper;
-use POSIX qw(WIFEXITED WEXITSTATUS);
 use Symbol;
+
+# Not all systems implement the WIFEXITED/WEXITSTATUS macros
+use POSIX qw(WIFEXITED WEXITSTATUS);
+eval { WIFEXITED(0); };
+if ($@ =~ /not (?:defined|a valid|implemented)/) {
+    no warnings 'redefine';
+    *WIFEXITED   = sub { not $_[0] & 0xff };
+    *WEXITSTATUS = sub { $_[0] >> 8  };
+}
 
 use Test::MockCommand::Recorder;
 use Test::MockCommand::Result;
 use Test::MockCommand::ScalarReadline qw(scalar_readline);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 our $CLASS = __PACKAGE__;
 our $OPEN_HANDLER = undef; # this gets set to _default_open_handler
 our $RECORDING = 0;        # are we recording commands or playing them back?
@@ -572,7 +580,7 @@ Stuart Caie, E<lt>kyzer@4u.netE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2008-2009 by Stuart Caie
+Copyright (C) 2008-2012 by Stuart Caie
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
